@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Империя Востока 3D — Улучшенная стратегия</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --gold:#ffd66b;
+      --gold-2:#c8960c;
+      --bg1:rgba(18,12,7,.94);
+      --bg2:rgba(42,29,15,.90);
+      --panel-border:rgba(200,150,50,.45);
+      --panel-shadow:0 14px 40px rgba(0,0,0,.55);
+      --text:#f4e1a8;
+      --muted:#d5c086;
+      --danger:#a61d1d;
+      --success:#1e6c3f;
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--text);font-family:'Roboto',sans-serif;touch-action:none;-webkit-user-select:none;user-select:none}
+    canvas{display:block}
+    #ui-root{position:fixed;inset:0;pointer-events:none}
+    .panel{
+      pointer-events:auto;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      backdrop-filter:blur(10px);
+      border:1.5px solid var(--panel-border);
+      box-shadow:var(--panel-shadow);
+      border-radius:20px;
+    }
+    #top-bar{
+      position:absolute;top:calc(10px + var(--safe-top));left:50%;transform:translateX(-50%);
+      display:flex;flex-wrap:wrap;justify-content:center;gap:8px 14px;padding:12px 18px;max-width:min(96vw,1100px);z-index:20;
+    }
+    .res-item{display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap}
+    .res-icon{font-size:18px}
+    .res-value{font-weight:700;color:#ffe592;min-width:28px;text-align:center}
+    .small-note{font-size:11px;color:#c5b27a}
+
+    #left-panel{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:250px;max-height:78vh;padding:14px;z-index:22;overflow:auto}
+    .section-title{font-family:'Cinzel',serif;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin:8px 0 8px;padding-bottom:6px;border-bottom:1px solid rgba(255,214,107,.16)}
+    .build-btn,.control-btn,.event-choice,.mini-btn{
+      width:100%;display:flex;align-items:center;gap:10px;justify-content:flex-start;
+      border:1px solid rgba(255,214,107,.35);border-radius:14px;background:linear-gradient(135deg,rgba(85,53,13,.85),rgba(49,33,13,.98));
+      color:var(--text);padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.18s transform,.18s background,.18s border-color;
+    }
+    .build-btn:hover,.control-btn:hover,.mini-btn:hover,.event-choice:hover{transform:translateY(-1px);border-color:rgba(255,214,107,.7)}
+    .build-btn.active{background:linear-gradient(135deg,rgba(142,24,24,.92),rgba(88,10,10,.98));border-color:#ffe592}
+    .btn-main-text{display:flex;flex-direction:column;align-items:flex-start;gap:2px;flex:1}
+    .btn-sub{font-size:10px;color:#d1bf89;font-weight:400}
+    .cost{font-size:10px;color:#f1d48d;opacity:.95;text-align:right;line-height:1.15}
+    .row{display:flex;gap:8px}
+    .row > *{flex:1}
+
+    #right-panel{position:absolute;right:12px;top:calc(86px + var(--safe-top));width:290px;padding:14px;z-index:22;display:none}
+    #right-panel.visible{display:block}
+    .info-title{font-family:'Cinzel',serif;font-size:20px;color:#ffe592;margin-bottom:10px}
+    .stats-list{display:grid;gap:6px;margin:10px 0 14px}
+    .stat-line{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid rgba(255,214,107,.14);font-size:13px}
+
+    #bottom-bar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(12px + var(--safe-bottom));display:flex;flex-wrap:wrap;gap:8px;justify-content:center;z-index:22;max-width:96vw}
+    .control-btn{width:auto;padding:12px 16px;border-radius:16px;text-transform:uppercase;letter-spacing:.03em}
+    #end-turn-btn{background:linear-gradient(135deg,#922,#5a0e0e)}
+
+    #floating-status{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:10px;z-index:21;align-items:flex-end}
+    #time-box,#weather-box,#legend-box{padding:10px 14px;font-size:12px}
+    #minimap-wrap{width:180px;height:180px;padding:6px;overflow:hidden}
+    #minimap{width:100%;height:100%;display:block;border-radius:12px}
+
+    #notifications{position:absolute;top:calc(110px + var(--safe-top));left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+    .notification{background:rgba(27,17,9,.95);border:1px solid rgba(255,214,107,.6);color:#ffe592;padding:10px 14px;border-radius:12px;box-shadow:0 8px 26px rgba(0,0,0,.4);font-size:13px;animation:fadeSlide 3.4s ease forwards}
+    @keyframes fadeSlide{0%{opacity:0;transform:translateY(-10px)}10%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
+
+    #modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:120;padding:20px}
+    #modal-overlay.visible{display:flex}
+    .modal{width:min(720px,96vw);max-height:90vh;overflow:auto;padding:20px}
+    .modal-title{font-family:'Cinzel',serif;font-size:26px;color:#ffe592;margin-bottom:10px}
+    .modal-text{font-size:14px;line-height:1.55;color:#f4dfaa;opacity:.96}
+    #modal-choices{display:grid;gap:10px;margin-top:16px}
+
+    #loading-screen{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 35%,#3c2408,#0c0a09 70%);display:flex;flex-direction:column;justify-content:center;align-items:center;color:#ffe592}
+    #loading-screen h1{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,48px);letter-spacing:.08em;text-align:center}
+    .loading-bar{margin-top:18px;width:min(80vw,460px);height:12px;border-radius:999px;border:1px solid rgba(255,214,107,.4);overflow:hidden;background:rgba(255,255,255,.06)}
+    .loading-fill{height:100%;width:0;background:linear-gradient(90deg,#8b5b0e,#ffd66b,#fff0b8);transition:width .35s}
+    #loading-text{margin-top:12px;font-size:14px;color:#e9d59d}
+
+    #placement-tip{position:absolute;left:50%;transform:translateX(-50%);bottom:88px;z-index:50;padding:10px 14px;font-size:12px;display:none}
+    #placement-tip.visible{display:block}
+
+    #help-box{margin-top:8px;font-size:11px;line-height:1.4;color:#ceb97e}
+    .tag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,214,107,.08);border:1px solid rgba(255,214,107,.18);padding:4px 8px;border-radius:999px;font-size:11px;margin:0 4px 6px 0}
+
+    @media (max-width: 980px){
+      #left-panel{width:220px}
+      #right-panel{width:240px}
+      #minimap-wrap{width:140px;height:140px}
+    }
+    @media (max-width: 768px){
+      #top-bar{top:calc(6px + var(--safe-top));gap:6px 10px;padding:10px 12px;border-radius:14px}
+      .res-item{font-size:11px}.res-icon{font-size:14px}
+      #left-panel{left:6px;top:auto;bottom:calc(74px + var(--safe-bottom));transform:none;width:min(48vw,220px);max-height:48vh;padding:10px;border-radius:16px}
+      #right-panel{right:6px;top:calc(92px + var(--safe-top));width:min(48vw,230px);padding:10px;border-radius:16px}
+      .build-btn,.mini-btn{padding:9px 10px;font-size:11px}
+      .btn-sub{font-size:9px}.cost{font-size:9px}
+      #bottom-bar{bottom:calc(6px + var(--safe-bottom));gap:6px}
+      .control-btn{padding:10px 12px;font-size:11px}
+      #floating-status{right:6px;bottom:58px}
+      #minimap-wrap{width:110px;height:110px}
+      #placement-tip{bottom:62px;width:min(90vw,440px)}
+      .info-title{font-size:17px}
+      #help-box{display:none}
+    }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "simplex-noise": "https://cdn.jsdelivr.net/npm/simplex-noise@4.0.1/+esm"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="loading-screen">
+    <h1>⚔️ Империя Востока 3D</h1>
+    <div class="loading-bar"><div class="loading-fill" id="loading-fill"></div></div>
+    <div id="loading-text">Подготовка мира и хроник империи…</div>
+  </div>
+
+  <div id="ui-root">
+    <div id="notifications"></div>
+
+    <div id="top-bar" class="panel">
+      <div class="res-item"><span class="res-icon">👑</span><span class="res-value" id="res-prestige">12</span><span class="small-note">Престиж</span></div>
+      <div class="res-item"><span class="res-icon">💰</span><span class="res-value" id="res-gold">120</span><span class="small-note">Золото</span></div>
+      <div class="res-item"><span class="res-icon">🌾</span><span class="res-value" id="res-food">90</span><span class="small-note">Еда</span></div>
+      <div class="res-item"><span class="res-icon">🪵</span><span class="res-value" id="res-wood">70</span><span class="small-note">Дерево</span></div>
+      <div class="res-item"><span class="res-icon">🪨</span><span class="res-value" id="res-stone">45</span><span class="small-note">Камень</span></div>
+      <div class="res-item"><span class="res-icon">⚔️</span><span class="res-value" id="res-army">24</span><span class="small-note">Армия</span></div>
+      <div class="res-item"><span class="res-icon">👥</span><span class="res-value" id="res-population">18</span><span class="small-note">Население</span></div>
+      <div class="res-item"><span class="res-icon">🕊️</span><span class="res-value" id="res-stability">72</span><span class="small-note">Стабильность</span></div>
+      <div class="res-item"><span class="res-icon">🏹</span><span class="res-value" id="res-threat">18</span><span class="small-note">Угроза</span></div>
+      <div class="res-item"><span class="res-icon">📅</span><span class="res-value" id="res-turn">1</span><span class="small-note">Год</span></div>
+    </div>
+
+    <div id="left-panel" class="panel">
+      <div class="section-title">Строительство</div>
+      <button class="build-btn" data-type="farm"><span>🌾</span><span class="btn-main-text"><span>Ферма</span><span class="btn-sub">Лучше на плодородной земле</span></span><span class="cost">25💰<br>8🪵</span></button>
+      <button class="build-btn" data-type="lumber"><span>🪓</span><span class="btn-main-text"><span>Лесопилка</span><span class="btn-sub">Лучше рядом с лесом</span></span><span class="cost">20💰<br>10🌾</span></button>
+      <button class="build-btn" data-type="mine"><span>⛏️</span><span class="btn-main-text"><span>Шахта</span><span class="btn-sub">Требует холмы/скалы</span></span><span class="cost">30💰<br>15🪵</span></button>
+      <button class="build-btn" data-type="market"><span>🛍️</span><span class="btn-main-text"><span>Рынок</span><span class="btn-sub">Усиливает соседние здания</span></span><span class="cost">45💰<br>12🪵</span></button>
+      <button class="build-btn" data-type="barracks"><span>⚔️</span><span class="btn-main-text"><span>Казармы</span><span class="btn-sub">Набор войск и защита</span></span><span class="cost">55💰<br>15🪨</span></button>
+      <button class="build-btn" data-type="wall"><span>🧱</span><span class="btn-main-text"><span>Башня-стена</span><span class="btn-sub">Держит границу от набегов</span></span><span class="cost">25🪨<br>12🪵</span></button>
+      <button class="build-btn" data-type="temple"><span>🏛️</span><span class="btn-main-text"><span>Храм</span><span class="btn-sub">Престиж и стабильность</span></span><span class="cost">90💰<br>40🪨</span></button>
+      <button class="build-btn" data-type="granary"><span>🏺</span><span class="btn-main-text"><span>Амбар</span><span class="btn-sub">Снижает голод и потери</span></span><span class="cost">35💰<br>16🪵</span></button>
+
+      <div class="section-title">Указы</div>
+      <div class="row">
+        <button class="mini-btn" id="edict-tax"><span>📜</span><span class="btn-main-text"><span>Налоги</span><span class="btn-sub">+золото, -стабильность</span></span></button>
+        <button class="mini-btn" id="edict-feast"><span>🎉</span><span class="btn-main-text"><span>Пир</span><span class="btn-sub">-еда, +стабильность</span></span></button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="mini-btn" id="edict-levy"><span>🛡️</span><span class="btn-main-text"><span>Ополчение</span><span class="btn-sub">+армия, -население</span></span></button>
+        <button class="mini-btn" id="edict-colonize"><span>🧭</span><span class="btn-main-text"><span>Освоение</span><span class="btn-sub">Расширить владения</span></span></button>
+      </div>
+
+      <div id="help-box">
+        <span class="tag">Тап по кнопке здания → тап по карте</span>
+        <span class="tag">Долгий зажим не нужен</span>
+        <span class="tag">Двойной тап по земле сбрасывает выбор</span>
+      </div>
+    </div>
+
+    <div id="right-panel" class="panel">
+      <div class="info-title" id="info-title">Столица</div>
+      <div class="modal-text" id="info-desc">Сердце империи и центр власти.</div>
+      <div class="stats-list" id="info-stats"></div>
+      <div class="row">
+        <button class="control-btn" id="upgrade-btn">⬆️ Улучшить</button>
+        <button class="control-btn" id="destroy-btn" style="background:linear-gradient(135deg,#992020,#5a0e0e)">💀 Снести</button>
+      </div>
+    </div>
+
+    <div id="placement-tip" class="panel">Выбери место постройки на карте.</div>
+
+    <div id="bottom-bar">
+      <button class="control-btn" id="camera-home">🏰 Столица</button>
+      <button class="control-btn" id="camera-top">🗺️ Карта</button>
+      <button class="control-btn" id="toggle-grid">🔶 Сетка</button>
+      <button class="control-btn" id="open-rules">❔ Правила</button>
+      <button class="control-btn" id="end-turn-btn">⏩ Следующий ход</button>
+    </div>
+
+    <div id="floating-status">
+      <div id="time-box" class="panel">☀️ День • <span id="season-label">Весна</span></div>
+      <div id="weather-box" class="panel">Погода: <span id="weather-label">Ясно</span></div>
+      <div id="legend-box" class="panel">Выбран режим: <span id="mode-label">Осмотр</span></div>
+      <div id="minimap-wrap" class="panel"><canvas id="minimap"></canvas></div>
+    </div>
+
+    <div id="modal-overlay">
+      <div class="modal panel">
+        <div class="modal-title" id="modal-title">Событие</div>
+        <div class="modal-text" id="modal-text">Описание</div>
+        <div id="modal-choices"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { createNoise2D } from 'simplex-noise';
+
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => [...document.querySelectorAll(s)];
+
+    const STATE = {
+      prestige: 12,
+      gold: 120,
+      food: 90,
+      wood: 70,
+      stone: 45,
+      army: 24,
+      population: 18,
+      stability: 72,
+      threat: 18,
+      turn: 1,
+      season: 0,
+      dayPhase: 0.25,
+      weather: 'clear',
+      mode: 'inspect',
+      selectedBuildingType: null,
+      selectedEntity: null,
+      territoryRadius: 12,
+      tiles: [],
+      buildings: [],
+      raidsDefeated: 0,
+      visualGrid: true,
+      hoverTile: null,
+      effects: [],
+      particles: [],
+      eventLocked: false
+    };
+
+    const SEASONS = ['Весна','Лето','Осень','Зима'];
+    const WEATHER = {
+      clear: { label:'Ясно', skyTop:0x86c4ff, skyBottom:0xf7d9a8, sunMul:1, foodMul:1, tradeMul:1 },
+      rain: { label:'Дождь', skyTop:0x7a91a8, skyBottom:0x97a6b0, sunMul:.72, foodMul:1.15, tradeMul:.95 },
+      dust: { label:'Пыльная буря', skyTop:0xb88b53, skyBottom:0xd5bc92, sunMul:.82, foodMul:.9, tradeMul:.7 },
+      mist: { label:'Туман', skyTop:0x9cb1c1, skyBottom:0xd5d8dc, sunMul:.65, foodMul:.96, tradeMul:.85 }
+    };
+
+    const BUILDING_TYPES = {
+      capital: {
+        name:'Столица', description:'Главный город империи. Расширяет пределы и открывает новый уровень власти.',
+        cost:null, maxLevel:5, important:true,
+        base:{ prestige:4, gold:3, stability:3 },
+        upgradeCost:(lvl)=>({ gold: 70 + lvl*35, stone: 30 + lvl*18, wood: 20 + lvl*10 }),
+        allowed:()=>true
+      },
+      farm: {
+        name:'Ферма', description:'Основной источник продовольствия. Получает мощный бонус на плодородной почве и у реки.',
+        cost:{ gold:25, wood:8 }, maxLevel:3,
+        base:{ food:8 },
+        terrain:['grass','fertile','river'],
+        upgradeCost:(lvl)=>({ gold: 24 + lvl*15, wood: 10 + lvl*6 }),
+        allowed:(tile)=>['grass','fertile','river'].includes(tile.type)
+      },
+      lumber: {
+        name:'Лесопилка', description:'Добывает дерево. Лучше работает рядом с лесными клетками.',
+        cost:{ gold:20, food:10 }, maxLevel:3,
+        base:{ wood:7 },
+        terrain:['forest','grass'],
+        upgradeCost:(lvl)=>({ gold: 20 + lvl*12, wood: 5 + lvl*6, stone: 8 + lvl*5 }),
+        allowed:(tile)=>['forest','grass'].includes(tile.type)
+      },
+      mine: {
+        name:'Шахта', description:'Даёт камень и немного золота. Может строиться только в холмах и на скалах.',
+        cost:{ gold:30, wood:15 }, maxLevel:3,
+        base:{ stone:7, gold:3 },
+        terrain:['hill','rock'],
+        upgradeCost:(lvl)=>({ gold: 28 + lvl*18, wood: 9 + lvl*6, stone: 10 + lvl*7 }),
+        allowed:(tile)=>['hill','rock'].includes(tile.type)
+      },
+      market: {
+        name:'Рынок', description:'Усиливает экономику города и соседние мирные здания.',
+        cost:{ gold:45, wood:12 }, maxLevel:3,
+        base:{ gold:10 },
+        terrain:['grass','fertile','river','forest'],
+        upgradeCost:(lvl)=>({ gold: 42 + lvl*20, wood: 12 + lvl*5, stone: 10 + lvl*5 }),
+        allowed:(tile)=>['grass','fertile','river','forest'].includes(tile.type)
+      },
+      barracks: {
+        name:'Казармы', description:'Даёт армию и повышает безопасность близлежащих клеток.',
+        cost:{ gold:55, stone:15 }, maxLevel:3,
+        base:{ army:6, stability:1 },
+        terrain:['grass','fertile','hill','rock'],
+        upgradeCost:(lvl)=>({ gold: 50 + lvl*22, stone: 14 + lvl*10, wood: 8 + lvl*4 }),
+        allowed:(tile)=>['grass','fertile','hill','rock'].includes(tile.type)
+      },
+      wall: {
+        name:'Башня-стена', description:'Оборонительная башня. Сильнее всего на краю владений.',
+        cost:{ stone:25, wood:12 }, maxLevel:2,
+        base:{ defense:12 },
+        terrain:['grass','fertile','hill','rock','forest'],
+        upgradeCost:(lvl)=>({ stone: 24 + lvl*15, wood: 14 + lvl*6, gold: 16 + lvl*8 }),
+        allowed:(tile)=>['grass','fertile','hill','rock','forest'].includes(tile.type)
+      },
+      temple: {
+        name:'Храм', description:'Даёт престиж и удерживает народ в спокойствии.',
+        cost:{ gold:90, stone:40 }, maxLevel:3,
+        base:{ prestige:8, stability:6 },
+        terrain:['grass','fertile','rock','hill','river'],
+        upgradeCost:(lvl)=>({ gold: 80 + lvl*35, stone: 28 + lvl*18, wood: 8 + lvl*4 }),
+        allowed:(tile)=>['grass','fertile','rock','hill','river'].includes(tile.type)
+      },
+      granary: {
+        name:'Амбар', description:'Снижает продовольственные потери и поддерживает население зимой.',
+        cost:{ gold:35, wood:16 }, maxLevel:3,
+        base:{ food:4, stability:2 },
+        terrain:['grass','fertile','river'],
+        upgradeCost:(lvl)=>({ gold: 26 + lvl*15, wood: 12 + lvl*6, stone: 6 + lvl*4 }),
+        allowed:(tile)=>['grass','fertile','river'].includes(tile.type)
+      }
+    };
+
+    const TERRAIN_INFO = {
+      water:{ name:'Вода', buildable:false, color:0x4a7bb3 },
+      river:{ name:'Речной берег', buildable:true, color:0x72a9d7 },
+      fertile:{ name:'Плодородная земля', buildable:true, color:0x9ccf66 },
+      grass:{ name:'Равнина', buildable:true, color:0x74ab50 },
+      forest:{ name:'Лес', buildable:true, color:0x386b2c },
+      hill:{ name:'Холмы', buildable:true, color:0x958058 },
+      rock:{ name:'Скалы', buildable:true, color:0x818181 },
+      sacred:{ name:'Священная земля', buildable:true, color:0xd1b463 }
+    };
+
+    const loadingFill = $('#loading-fill');
+    const loadingText = $('#loading-text');
+    const modalOverlay = $('#modal-overlay');
+    const modalTitle = $('#modal-title');
+    const modalText = $('#modal-text');
+    const modalChoices = $('#modal-choices');
+
+    function setLoading(p, text){
+      loadingFill.style.width = p + '%';
+      if(text) loadingText.textContent = text;
+    }
+
+    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+    function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    function fmtCost(cost){ return Object.entries(cost).map(([k,v])=>`${v}${iconFor(k)}`).join(' '); }
+    function iconFor(k){ return ({ gold:'💰', food:'🌾', wood:'🪵', stone:'🪨', army:'⚔️', prestige:'👑', stability:'🕊️', population:'👥', defense:'🛡️' })[k] || k; }
+    function distance2D(a,b){ return Math.hypot(a.x-b.x,a.z-b.z); }
+
+    const scene = new THREE.Scene();
+    const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, .1, 600);
+    camera.position.set(18, 28, 24);
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.22, 0.4, 0.92);
+    composer.addPass(bloom);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = .05;
+    controls.maxPolarAngle = Math.PI/2.08;
+    controls.minDistance = 10;
+    controls.maxDistance = 64;
+    controls.target.set(0,0,0);
+    controls.enablePan = false;
+    controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
+
+    const hemi = new THREE.HemisphereLight(0xddeeff, 0x5d3e16, .85);
+    scene.add(hemi);
+    const sun = new THREE.DirectionalLight(0xffefcc, 1.35);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048,2048);
+    sun.shadow.camera.left = -60; sun.shadow.camera.right = 60; sun.shadow.camera.top = 60; sun.shadow.camera.bottom = -60;
+    scene.add(sun);
+
+    const skyGeo = new THREE.SphereGeometry(260, 24, 16);
+    const skyMat = new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      uniforms: {
+        topColor: { value: new THREE.Color(0x86c4ff) },
+        bottomColor: { value: new THREE.Color(0xf7d9a8) },
+        offset: { value: 18 },
+        exponent: { value: .65 }
+      },
+      vertexShader: `varying vec3 vWorldPosition; void main(){ vec4 worldPosition = modelMatrix * vec4(position, 1.0); vWorldPosition = worldPosition.xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `uniform vec3 topColor; uniform vec3 bottomColor; uniform float offset; uniform float exponent; varying vec3 vWorldPosition; void main(){ float h = normalize(vWorldPosition + offset).y; gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h,0.0), exponent), 0.0)), 1.0); }`
+    });
+    const sky = new THREE.Mesh(skyGeo, skyMat); scene.add(sky);
+
+    const noise2D = createNoise2D();
+    const world = new THREE.Group();
+    scene.add(world);
+
+    const tileGroup = new THREE.Group();
+    const decoGroup = new THREE.Group();
+    const buildingGroup = new THREE.Group();
+    const fxGroup = new THREE.Group();
+    world.add(tileGroup, decoGroup, buildingGroup, fxGroup);
+
+    const ringLineMat = new THREE.LineBasicMaterial({ color:0xffd66b, transparent:true, opacity:.24 });
+    const territoryRing = new THREE.LineLoop(new THREE.BufferGeometry(), ringLineMat);
+    territoryRing.rotation.x = -Math.PI/2;
+    territoryRing.position.y = .08;
+    world.add(territoryRing);
+
+    let gridOverlay = null;
+    const waterMaterial = new THREE.MeshStandardMaterial({ color:0x558cc5, metalness:.05, roughness:.34 });
+    const previewMaterial = new THREE.MeshStandardMaterial({ color:0xffd66b, transparent:true, opacity:.55, emissive:0x553000, emissiveIntensity:.6 });
+    const invalidPreviewMaterial = new THREE.MeshStandardMaterial({ color:0xd33e3e, transparent:true, opacity:.5, emissive:0x441111, emissiveIntensity:.6 });
+    let previewMesh = null;
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let intersectables = [];
+
+    function notify(msg){
+      const el = document.createElement('div');
+      el.className = 'notification';
+      el.textContent = msg;
+      $('#notifications').appendChild(el);
+      setTimeout(()=>el.remove(), 3400);
+    }
+
+    function hasResources(cost){ return Object.entries(cost).every(([k,v]) => STATE[k] >= v); }
+    function payCost(cost){ Object.entries(cost).forEach(([k,v]) => STATE[k] -= v); }
+    function gain(obj){ Object.entries(obj).forEach(([k,v]) => { STATE[k] = (STATE[k] || 0) + v; }); }
+
+    function updateUI(){
+      for(const key of ['prestige','gold','food','wood','stone','army','population','stability','threat','turn']){
+        const el = document.getElementById(`res-${key}`);
+        if(el) el.textContent = Math.round(STATE[key]);
+      }
+      $('#season-label').textContent = SEASONS[STATE.season];
+      $('#weather-label').textContent = WEATHER[STATE.weather].label;
+      $('#mode-label').textContent = STATE.selectedBuildingType ? `Строительство: ${BUILDING_TYPES[STATE.selectedBuildingType].name}` : 'Осмотр';
+      updateInfoPanel();
+      drawMinimap();
+    }
+
+    function updateTerritoryRing(){
+      const pts = [];
+      const r = STATE.territoryRadius;
+      for(let i=0;i<72;i++){
+        const a = i/72 * Math.PI*2;
+        pts.push(new THREE.Vector3(Math.cos(a)*r, 0, Math.sin(a)*r));
+      }
+      territoryRing.geometry.dispose?.();
+      territoryRing.geometry = new THREE.BufferGeometry().setFromPoints(pts);
+    }
+
+    function terrainColor(type){ return TERRAIN_INFO[type].color; }
+    function tileKey(q,r){ return `${q},${r}`; }
+
+    function axialToWorld(q, r, size=1.45){
+      return new THREE.Vector3(size * Math.sqrt(3) * (q + r/2), 0, size * 1.5 * r);
+    }
+
+    function createHexShape(size=1.35){
+      const shape = new THREE.Shape();
+      for(let i=0;i<6;i++){
+        const a = Math.PI/3 * i + Math.PI/6;
+        const x = Math.cos(a) * size;
+        const y = Math.sin(a) * size;
+        if(i===0) shape.moveTo(x,y); else shape.lineTo(x,y);
+      }
+      shape.closePath();
+      return shape;
+    }
+
+    function generateWorld(){
+      setLoading(14,'Генерация ландшафта…');
+      const hexShape = createHexShape();
+      const extrude = { depth:.55, bevelEnabled:false };
+      const radius = 9;
+      const byKey = new Map();
+
+      for(let q=-radius;q<=radius;q++){
+        for(let r=-radius;r<=radius;r++){
+          const s = -q-r;
+          if(Math.max(Math.abs(q), Math.abs(r), Math.abs(s)) > radius) continue;
+          const pos = axialToWorld(q,r);
+          const d = Math.hypot(pos.x,pos.z);
+          const n1 = noise2D(q*0.19, r*0.19);
+          const n2 = noise2D(q*0.44+100, r*0.44+100);
+          let type = 'grass';
+          if(Math.abs(q+r*0.65) < 1.2 || (Math.abs(n1) < 0.03 && d < 18)) type = 'river';
+          else if(n1 > 0.52) type = 'rock';
+          else if(n1 > 0.28) type = 'hill';
+          else if(n2 < -0.38) type = 'forest';
+          else if(n2 > 0.48) type = 'fertile';
+          if(d > 17.2 && n1 < -0.14) type = 'water';
+          if(d < 2 && type !== 'water') type = 'sacred';
+
+          const geom = new THREE.ExtrudeGeometry(hexShape, extrude);
+          geom.rotateX(-Math.PI/2);
+          geom.translate(pos.x, (type==='water' ? -0.55 : -0.1) + (n1*0.25), pos.z);
+          const mat = new THREE.MeshStandardMaterial({
+            color: terrainColor(type),
+            roughness: type==='river' || type==='water' ? .38 : .95,
+            metalness: type==='water' ? .04 : 0
+          });
+          const mesh = new THREE.Mesh(geom, type==='water' ? waterMaterial.clone() : mat);
+          mesh.receiveShadow = true;
+          mesh.castShadow = false;
+          tileGroup.add(mesh);
+
+          const tile = { q,r,key:tileKey(q,r), type, pos, mesh, building:null };
+          STATE.tiles.push(tile);
+          byKey.set(tile.key, tile);
+
+          if(type === 'forest') addTreeCluster(pos);
+          if(type === 'hill' || type === 'rock') addRockCluster(pos, type === 'rock');
+          if(type === 'river') addReedCluster(pos);
+          if(type === 'sacred') addObelisk(pos);
+        }
+      }
+
+      STATE.tileMap = byKey;
+      intersectables = STATE.tiles.map(t=>t.mesh);
+      createGridOverlay();
+      updateTerritoryRing();
+      setLoading(38,'Возведение столицы…');
+    }
+
+    function addTreeCluster(pos){
+      const group = new THREE.Group();
+      const count = 2 + Math.floor(Math.random()*3);
+      for(let i=0;i<count;i++){
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,.8,6), new THREE.MeshStandardMaterial({ color:0x6f4b22, roughness:1 }));
+        const crown = new THREE.Mesh(new THREE.ConeGeometry(.42,.95,7), new THREE.MeshStandardMaterial({ color:0x2c6b2d, roughness:1 }));
+        const ox = (Math.random()-.5)*1.1, oz = (Math.random()-.5)*1.1;
+        trunk.position.set(pos.x+ox,.45,pos.z+oz);
+        crown.position.set(pos.x+ox,1.2,pos.z+oz);
+        trunk.castShadow = crown.castShadow = true;
+        group.add(trunk,crown);
+      }
+      decoGroup.add(group);
+    }
+
+    function addRockCluster(pos,big=false){
+      const group = new THREE.Group();
+      const n = big ? 4 : 3;
+      for(let i=0;i<n;i++){
+        const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(big ? 0.35 : 0.24, 0), new THREE.MeshStandardMaterial({ color:big?0x888888:0x9a835f, roughness:1 }));
+        rock.position.set(pos.x+(Math.random()-.5)*1.2, .3 + Math.random()*.25, pos.z+(Math.random()-.5)*1.2);
+        rock.scale.setScalar(1 + Math.random()*1.2);
+        rock.castShadow = true;
+        group.add(rock);
+      }
+      decoGroup.add(group);
+    }
+
+    function addReedCluster(pos){
+      const group = new THREE.Group();
+      for(let i=0;i<6;i++){
+        const reed = new THREE.Mesh(new THREE.CylinderGeometry(.02,.03,.55,5), new THREE.MeshStandardMaterial({ color:0xb5b56a, roughness:1 }));
+        reed.position.set(pos.x+(Math.random()-.5)*1.4,.22,pos.z+(Math.random()-.5)*1.4);
+        group.add(reed);
+      }
+      decoGroup.add(group);
+    }
+
+    function addObelisk(pos){
+      const mat = new THREE.MeshStandardMaterial({ color:0xd9bf78, roughness:.7, emissive:0x2a2209, emissiveIntensity:.35 });
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(.55,.65,.35,6), mat);
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(.35,1.4,.35), mat);
+      const top = new THREE.Mesh(new THREE.ConeGeometry(.25,.45,4), mat);
+      base.position.set(pos.x,.18,pos.z);
+      pillar.position.set(pos.x,1,pos.z);
+      top.position.set(pos.x,1.9,pos.z);
+      base.castShadow = pillar.castShadow = top.castShadow = true;
+      decoGroup.add(base,pillar,top);
+    }
+
+    function createBuildingModel(type, level=1){
+      const group = new THREE.Group();
+      const add = (mesh) => { mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh); return mesh; };
+      if(type === 'capital'){
+        const base = add(new THREE.Mesh(new THREE.CylinderGeometry(1.35,1.55,.6,8), new THREE.MeshStandardMaterial({ color:0xc9b173, roughness:.75 })));
+        base.position.y = .3;
+        for(let i=0;i<4;i++){
+          const tower = add(new THREE.Mesh(new THREE.CylinderGeometry(.32,.38,1.4,6), new THREE.MeshStandardMaterial({ color:0xc2a164, roughness:.82 })));
+          const a = i * Math.PI/2 + Math.PI/4;
+          tower.position.set(Math.cos(a)*.95,1.0,Math.sin(a)*.95);
+        }
+        const dome = add(new THREE.Mesh(new THREE.SphereGeometry(.8,18,16), new THREE.MeshStandardMaterial({ color:0x8b2020, roughness:.65 })));
+        dome.position.y = 1.55;
+        dome.scale.y = .7;
+        const spire = add(new THREE.Mesh(new THREE.ConeGeometry(.18,.6,6), new THREE.MeshStandardMaterial({ color:0xffdc7b, metalness:.25, roughness:.35 })));
+        spire.position.y = 2.25;
+      } else if(type === 'farm'){
+        const base = add(new THREE.Mesh(new THREE.BoxGeometry(1.3,.35,1.1), new THREE.MeshStandardMaterial({ color:0x7d5a34, roughness:1 })));
+        base.position.y = .18;
+        const roof = add(new THREE.Mesh(new THREE.ConeGeometry(.9,.75,4), new THREE.MeshStandardMaterial({ color:0xb38a4d, roughness:1 })));
+        roof.rotation.y = Math.PI/4; roof.position.y = .8;
+        for(let i=0;i<4 + level;i++){
+          const hay = add(new THREE.Mesh(new THREE.BoxGeometry(.13,.4,.08), new THREE.MeshStandardMaterial({ color:0xcab84f, roughness:1 })));
+          hay.position.set(-.85 + i*.28, .22, .88);
+        }
+      } else if(type === 'lumber'){
+        const hut = add(new THREE.Mesh(new THREE.BoxGeometry(1.1,.75,1), new THREE.MeshStandardMaterial({ color:0x6f4b22, roughness:1 })));
+        hut.position.y = .4;
+        const roof = add(new THREE.Mesh(new THREE.ConeGeometry(.9,.7,4), new THREE.MeshStandardMaterial({ color:0x52411f, roughness:1 })));
+        roof.rotation.y = Math.PI/4; roof.position.y = 1;
+        for(let i=0;i<3+level;i++){
+          const log = add(new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,.75,6), new THREE.MeshStandardMaterial({ color:0x8b6431, roughness:1 })));
+          log.rotation.z = Math.PI/2;
+          log.position.set(-.65 + i*.28, .16, .92);
+        }
+      } else if(type === 'mine'){
+        const rock = add(new THREE.Mesh(new THREE.BoxGeometry(1.8,.9,1.3), new THREE.MeshStandardMaterial({ color:0x7c7c7c, roughness:1 })));
+        rock.position.y = .45;
+        const opening = add(new THREE.Mesh(new THREE.BoxGeometry(.82,.68,.2), new THREE.MeshStandardMaterial({ color:0x151515, roughness:1 })));
+        opening.position.set(0,.34,.56);
+        const beam1 = add(new THREE.Mesh(new THREE.BoxGeometry(.1,.75,.1), new THREE.MeshStandardMaterial({ color:0x6f4b22 }))); beam1.position.set(-.34,.38,.62);
+        const beam2 = add(new THREE.Mesh(new THREE.BoxGeometry(.1,.75,.1), new THREE.MeshStandardMaterial({ color:0x6f4b22 }))); beam2.position.set(.34,.38,.62);
+        const beam3 = add(new THREE.Mesh(new THREE.BoxGeometry(.84,.1,.1), new THREE.MeshStandardMaterial({ color:0x6f4b22 }))); beam3.position.set(0,.71,.62);
+      } else if(type === 'market'){
+        const plinth = add(new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.25,.28,8), new THREE.MeshStandardMaterial({ color:0xaf9360, roughness:1 })));
+        plinth.position.y = .14;
+        const poles = [];
+        for(let i=0;i<4;i++){
+          const pole = add(new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.9,5), new THREE.MeshStandardMaterial({ color:0x714f28 })));
+          const sx = i<2 ? -0.65 : 0.65; const sz = i%2===0 ? -0.55 : 0.55;
+          pole.position.set(sx,.58,sz); poles.push(pole);
+        }
+        const canopy = add(new THREE.Mesh(new THREE.BoxGeometry(1.65,.14,1.35), new THREE.MeshStandardMaterial({ color:0x8d1e1e, roughness:.82 })));
+        canopy.position.y = 1.08;
+        for(let i=0;i<3+level;i++){
+          const jar = add(new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,.22,8), new THREE.MeshStandardMaterial({ color:0xc7a05f, roughness:.9 })));
+          jar.position.set(-.48 + i*.35,.18,.18 + ((i%2)*.25));
+        }
+      } else if(type === 'barracks'){
+        const base = add(new THREE.Mesh(new THREE.BoxGeometry(1.45,.55,1.25), new THREE.MeshStandardMaterial({ color:0x8d7a5b, roughness:1 })));
+        base.position.y = .28;
+        const roof = add(new THREE.Mesh(new THREE.ConeGeometry(1.0,.75,4), new THREE.MeshStandardMaterial({ color:0x7c2020, roughness:.95 })));
+        roof.rotation.y = Math.PI/4; roof.position.y = .95;
+        const flagPole = add(new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,1.55,5), new THREE.MeshStandardMaterial({ color:0x5e3d22 })));
+        flagPole.position.set(.62,1.05,.5);
+        const flag = add(new THREE.Mesh(new THREE.PlaneGeometry(.55,.32), new THREE.MeshStandardMaterial({ color:0xb72222, side:THREE.DoubleSide })));
+        flag.position.set(.86,1.38,.5);
+      } else if(type === 'wall'){
+        const base = add(new THREE.Mesh(new THREE.BoxGeometry(1.5,.62,.48), new THREE.MeshStandardMaterial({ color:0x949494, roughness:1 })));
+        base.position.y = .31;
+        for(let i=-1;i<=1;i++){
+          const tooth = add(new THREE.Mesh(new THREE.BoxGeometry(.22,.18,.44), new THREE.MeshStandardMaterial({ color:0x8b8b8b, roughness:1 })));
+          tooth.position.set(i*.42,.72,0);
+        }
+        if(level>1){
+          const tower = add(new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.72,6), new THREE.MeshStandardMaterial({ color:0x9d9d9d, roughness:1 })));
+          tower.position.set(0,.95,0);
+        }
+      } else if(type === 'temple'){
+        const platform = add(new THREE.Mesh(new THREE.BoxGeometry(1.65,.28,1.65), new THREE.MeshStandardMaterial({ color:0xc5b06b, roughness:.82 })));
+        platform.position.y = .14;
+        for(let i=0;i<4;i++){
+          const col = add(new THREE.Mesh(new THREE.CylinderGeometry(.11,.12,.92,8), new THREE.MeshStandardMaterial({ color:0xddd1a8, roughness:.72 })));
+          const sx = i<2 ? -.5 : .5; const sz = i%2===0 ? -.42 : .42;
+          col.position.set(sx,.6,sz);
+        }
+        const roof = add(new THREE.Mesh(new THREE.BoxGeometry(1.25,.22,1.15), new THREE.MeshStandardMaterial({ color:0xb39a5a, roughness:.8 })));
+        roof.position.y = 1.1;
+        const glow = add(new THREE.Mesh(new THREE.SphereGeometry(.2,10,10), new THREE.MeshStandardMaterial({ color:0xffe391, emissive:0xffcf58, emissiveIntensity:1.4, roughness:.4 })));
+        glow.position.y = 1.52;
+      } else if(type === 'granary'){
+        const body = add(new THREE.Mesh(new THREE.CylinderGeometry(.65,.82,1.18,10), new THREE.MeshStandardMaterial({ color:0xc8a96e, roughness:.88 })));
+        body.position.y = .6;
+        const cap = add(new THREE.Mesh(new THREE.ConeGeometry(.82,.72,10), new THREE.MeshStandardMaterial({ color:0x7d5122, roughness:1 })));
+        cap.position.y = 1.55;
+        const jar = add(new THREE.Mesh(new THREE.CylinderGeometry(.1,.12,.34,8), new THREE.MeshStandardMaterial({ color:0xa17141, roughness:.92 })));
+        jar.position.set(.55,.2,.55);
+      }
+      const ring = new THREE.Mesh(new THREE.RingGeometry(1.15,1.42,32), new THREE.MeshBasicMaterial({ color:0xffd66b, transparent:true, opacity:0, side:THREE.DoubleSide }));
+      ring.rotation.x = -Math.PI/2;
+      ring.position.y = .05;
+      group.add(ring);
+      group.userData.selectionRing = ring;
+      return group;
+    }
+
+    function createGridOverlay(){
+      if(gridOverlay) world.remove(gridOverlay);
+      const shape = createHexShape(1.36);
+      const pts = shape.getPoints(6).map(p => new THREE.Vector3(p.x,0,p.y));
+      const geo = new THREE.BufferGeometry().setFromPoints([...pts, pts[0]]);
+      gridOverlay = new THREE.Group();
+      for(const tile of STATE.tiles){
+        if(tile.type === 'water') continue;
+        const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:.08 }));
+        line.rotation.x = -Math.PI/2;
+        line.position.set(tile.pos.x,.06,tile.pos.z);
+        gridOverlay.add(line);
+      }
+      gridOverlay.visible = STATE.visualGrid;
+      world.add(gridOverlay);
+    }
+
+    function getNeighbors(tile){
+      const dirs = [[1,0],[-1,0],[0,1],[0,-1],[1,-1],[-1,1]];
+      return dirs.map(([dq,dr]) => STATE.tileMap.get(tileKey(tile.q+dq, tile.r+dr))).filter(Boolean);
+    }
+
+    function buildingYield(entity){
+      const cfg = BUILDING_TYPES[entity.type];
+      const out = {...(cfg.base || {})};
+      const levelMul = 1 + (entity.level - 1) * .45;
+      Object.keys(out).forEach(k => out[k] = Math.round(out[k] * levelMul));
+
+      const tile = entity.tile;
+      if(entity.type === 'farm'){
+        if(tile.type === 'fertile') out.food += 6;
+        if(tile.type === 'river') out.food += 4;
+        if(STATE.weather === 'rain') out.food += 2;
+      }
+      if(entity.type === 'lumber'){
+        const forestAdj = getNeighbors(tile).filter(t=>t.type==='forest').length;
+        out.wood += forestAdj * 2;
+      }
+      if(entity.type === 'mine'){
+        if(tile.type === 'rock') out.stone += 4;
+        if(tile.type === 'hill') out.gold += 1;
+      }
+      if(entity.type === 'market'){
+        const nearby = getNeighbors(tile).filter(t=>t.building && !['wall','capital'].includes(t.building.type)).length;
+        out.gold += nearby * 2;
+        if(STATE.weather === 'dust') out.gold -= 3;
+      }
+      if(entity.type === 'temple'){
+        if(tile.type === 'sacred') out.prestige += 6;
+      }
+      if(entity.type === 'wall'){
+        const edgeBonus = distance2D(tile.pos, new THREE.Vector3(0,0,0)) > STATE.territoryRadius - 3 ? 6 : 0;
+        out.defense = (out.defense || 0) + edgeBonus;
+      }
+      if(entity.type === 'granary' && STATE.season === 3){
+        out.food += 5;
+      }
+
+      const marketAdj = getNeighbors(tile).filter(t=>t.building?.type==='market').length;
+      if(marketAdj && !['market','wall'].includes(entity.type)){
+        ['gold','food','wood','stone','prestige','stability','army'].forEach(k => { if(out[k]) out[k] += marketAdj; });
+      }
+      return out;
+    }
+
+    function createEntity(type, tile, level=1){
+      const group = createBuildingModel(type, level);
+      group.position.copy(tile.pos);
+      group.position.y += 0.12;
+      buildingGroup.add(group);
+      const entity = { id: (globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : 'id_' + Math.random().toString(36).slice(2)), type, tile, level, mesh: group };
+      tile.building = entity;
+      STATE.buildings.push(entity);
+      spawnPlacementBurst(tile.pos, type === 'temple' ? 0xffdf86 : 0xf1bd64);
+      return entity;
+    }
+
+    function removeEntity(entity){
+      if(!entity || entity.type === 'capital') return false;
+      buildingGroup.remove(entity.mesh);
+      entity.tile.building = null;
+      STATE.buildings = STATE.buildings.filter(e=>e!==entity);
+      if(STATE.selectedEntity === entity) STATE.selectedEntity = null;
+      return true;
+    }
+
+    function spawnPlacementBurst(pos,color=0xffd66b){
+      for(let i=0;i<18;i++){
+        const p = new THREE.Mesh(new THREE.SphereGeometry(.06,6,6), new THREE.MeshBasicMaterial({ color }));
+        p.position.set(pos.x, .45 + Math.random()*.5, pos.z);
+        p.userData.vel = new THREE.Vector3((Math.random()-.5)*.08, Math.random()*.08 + .02, (Math.random()-.5)*.08);
+        p.userData.life = 1 + Math.random()*.6;
+        fxGroup.add(p);
+        STATE.particles.push(p);
+      }
+    }
+
+    function spawnSmoke(pos){
+      const puff = new THREE.Mesh(new THREE.SphereGeometry(.18,8,8), new THREE.MeshStandardMaterial({ color:0x999999, transparent:true, opacity:.55, roughness:1 }));
+      puff.position.set(pos.x + (Math.random()-.5)*.2, 1.25, pos.z + (Math.random()-.5)*.2);
+      puff.userData = { vel:new THREE.Vector3((Math.random()-.5)*.01,.012 + Math.random()*.008,(Math.random()-.5)*.01), life: 2.5 + Math.random()*1.4, smoke:true };
+      fxGroup.add(puff);
+      STATE.effects.push(puff);
+    }
+
+    function createPreview(){
+      if(previewMesh) buildingGroup.remove(previewMesh);
+      previewMesh = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.15,.36,6), previewMaterial);
+      base.position.y = .18;
+      const sign = new THREE.Mesh(new THREE.ConeGeometry(.6,.8,4), previewMaterial);
+      sign.position.y = .86;
+      sign.rotation.y = Math.PI/4;
+      previewMesh.add(base, sign);
+      previewMesh.visible = false;
+      buildingGroup.add(previewMesh);
+    }
+
+    function setPreviewValid(valid){
+      previewMesh.traverse(obj => { if(obj.isMesh) obj.material = valid ? previewMaterial : invalidPreviewMaterial; });
+    }
+
+    function showRules(){
+      openModal('Летопись правителя', `
+        Ты управляешь восточной империей по ходам. Каждый ход приносит доход от построек, расход еды на население и может запускать события, кризисы или набеги.<br><br>
+        <b>Главные цели:</b> развивать столицу, удерживать стабильность, кормить народ, отражать угрозу и копить престиж.<br><br>
+        <b>Механики:</b><br>
+        • разные клетки усиливают разные здания;<br>
+        • рынок усиливает соседей;<br>
+        • амбар помогает зимой;<br>
+        • стены и казармы снижают урон от набегов;<br>
+        • налоги дают золото, но нервируют народ;<br>
+        • пиры поднимают стабильность, но съедают запасы.<br><br>
+        <b>Победа:</b> достигни 220 престижа и отбей минимум 3 набега.<br>
+        <b>Поражение:</b> если стабильность упадёт до 0, армия до 0 при высокой угрозе, или население сократится до 3.`
+      , [{ text:'Понятно', onClick: closeModal }]);
+    }
+
+    function openModal(title, text, choices){
+      STATE.eventLocked = true;
+      modalTitle.textContent = title;
+      modalText.innerHTML = text;
+      modalChoices.innerHTML = '';
+      choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'event-choice';
+        btn.innerHTML = c.text;
+        btn.onclick = () => { c.onClick?.(); };
+        modalChoices.appendChild(btn);
+      });
+      modalOverlay.classList.add('visible');
+    }
+    function closeModal(){
+      STATE.eventLocked = false;
+      modalOverlay.classList.remove('visible');
+    }
+
+    function updateInfoPanel(){
+      const panel = $('#right-panel');
+      const entity = STATE.selectedEntity;
+      if(!entity){ panel.classList.remove('visible'); return; }
+      panel.classList.add('visible');
+      const cfg = BUILDING_TYPES[entity.type];
+      $('#info-title').textContent = `${cfg.name} • Ур. ${entity.level}`;
+      $('#info-desc').textContent = `${cfg.description} Местность: ${TERRAIN_INFO[entity.tile.type].name}.`;
+      const yields = buildingYield(entity);
+      const rows = [
+        `<div class="stat-line"><span>Клетка</span><span>${TERRAIN_INFO[entity.tile.type].name}</span></div>`,
+        `<div class="stat-line"><span>Уровень</span><span>${entity.level}/${cfg.maxLevel || 1}</span></div>`,
+      ];
+      Object.entries(yields).forEach(([k,v]) => rows.push(`<div class="stat-line"><span>${iconFor(k)} ${labelFor(k)}</span><span>${v > 0 ? '+' : ''}${v}</span></div>`));
+      if(cfg.maxLevel && entity.level < cfg.maxLevel && cfg.upgradeCost){
+        rows.push(`<div class="stat-line"><span>Улучшение</span><span>${fmtCost(cfg.upgradeCost(entity.level))}</span></div>`);
+      }
+      $('#info-stats').innerHTML = rows.join('');
+      $('#upgrade-btn').disabled = !(cfg.maxLevel && entity.level < cfg.maxLevel);
+      $('#upgrade-btn').style.opacity = $('#upgrade-btn').disabled ? '.5' : '1';
+      $('#destroy-btn').disabled = entity.type === 'capital';
+      $('#destroy-btn').style.opacity = $('#destroy-btn').disabled ? '.5' : '1';
+
+      STATE.buildings.forEach(b => b.mesh.userData.selectionRing.material.opacity = 0);
+      entity.mesh.userData.selectionRing.material.opacity = .6;
+    }
+
+    function labelFor(k){
+      return ({ gold:'Золото', food:'Еда', wood:'Дерево', stone:'Камень', army:'Армия', prestige:'Престиж', stability:'Стабильность', defense:'Защита', population:'Население' })[k] || k;
+    }
+
+    function canBuildOnTile(type, tile){
+      if(!tile || !tile.mesh || tile.type === 'water' || tile.building) return { ok:false, reason:'Здесь нельзя строить' };
+      if(distance2D(tile.pos, new THREE.Vector3(0,0,0)) > STATE.territoryRadius + .2) return { ok:false, reason:'Слишком далеко от владений' };
+      const cfg = BUILDING_TYPES[type];
+      if(!cfg.allowed(tile)) return { ok:false, reason:'Неподходящая местность' };
+      return { ok:true };
+    }
+
+    function chooseBuilding(type){
+      STATE.selectedBuildingType = STATE.selectedBuildingType === type ? null : type;
+      $$('.build-btn').forEach(b => b.classList.toggle('active', b.dataset.type === STATE.selectedBuildingType));
+      $('#placement-tip').classList.toggle('visible', !!STATE.selectedBuildingType);
+      updateUI();
+      if(!STATE.selectedBuildingType && previewMesh) previewMesh.visible = false;
+    }
+
+    function clearSelection(){
+      STATE.selectedEntity = null;
+      STATE.selectedBuildingType = null;
+      $$('.build-btn').forEach(b => b.classList.remove('active'));
+      $('#placement-tip').classList.remove('visible');
+      STATE.buildings.forEach(b => b.mesh.userData.selectionRing.material.opacity = 0);
+      if(previewMesh) previewMesh.visible = false;
+      updateUI();
+    }
+
+    function tryPlace(type, tile){
+      const cfg = BUILDING_TYPES[type];
+      const check = canBuildOnTile(type, tile);
+      if(!check.ok) return notify(check.reason);
+      if(!hasResources(cfg.cost)){ return notify('Недостаточно ресурсов'); }
+      payCost(cfg.cost);
+      const entity = createEntity(type, tile, 1);
+      notify(`Построено: ${cfg.name}`);
+      STATE.selectedEntity = entity;
+      STATE.selectedBuildingType = null;
+      $$('.build-btn').forEach(b => b.classList.remove('active'));
+      $('#placement-tip').classList.remove('visible');
+      updateUI();
+    }
+
+    function upgradeSelected(){
+      const entity = STATE.selectedEntity;
+      if(!entity) return;
+      const cfg = BUILDING_TYPES[entity.type];
+      if(!cfg.upgradeCost || entity.level >= cfg.maxLevel) return;
+      const cost = cfg.upgradeCost(entity.level);
+      if(!hasResources(cost)) return notify('Не хватает ресурсов на улучшение');
+      payCost(cost);
+      entity.level++;
+      buildingGroup.remove(entity.mesh);
+      entity.mesh = createBuildingModel(entity.type, entity.level);
+      entity.mesh.position.copy(entity.tile.pos);
+      entity.mesh.position.y += 0.12;
+      buildingGroup.add(entity.mesh);
+      spawnPlacementBurst(entity.tile.pos, 0xffefb0);
+      notify(`${cfg.name} улучшен до уровня ${entity.level}`);
+      updateUI();
+    }
+
+    function destroySelected(){
+      const entity = STATE.selectedEntity;
+      if(!entity || entity.type === 'capital') return;
+      gain({ wood: Math.round((entity.level*BUILDING_TYPES[entity.type].cost?.wood||0)*.3), stone: Math.round((entity.level*BUILDING_TYPES[entity.type].cost?.stone||0)*.25) });
+      removeEntity(entity);
+      notify('Постройка разобрана');
+      updateUI();
+    }
+
+    function nearestTileFromObject(obj){
+      return STATE.tiles.find(t => t.mesh === obj) || null;
+    }
+
+    function selectEntity(entity){
+      STATE.selectedEntity = entity;
+      updateUI();
+    }
+
+    function edictTax(){
+      STATE.gold += 36 + Math.floor(STATE.population * 1.4);
+      STATE.stability -= 8;
+      STATE.threat += 2;
+      notify('Сбор налогов усилил казну, но народ недоволен');
+      updateUI();
+    }
+    function edictFeast(){
+      if(STATE.food < 24) return notify('Недостаточно еды для большого пира');
+      STATE.food -= 24;
+      STATE.stability += 10;
+      STATE.prestige += 4;
+      notify('Праздник укрепил верность народа');
+      updateUI();
+    }
+    function edictLevy(){
+      if(STATE.population < 8) return notify('Слишком мало населения для ополчения');
+      STATE.population -= 1;
+      STATE.army += 7;
+      STATE.stability -= 5;
+      notify('Созвано ополчение');
+      updateUI();
+    }
+    function edictColonize(){
+      const cost = { wood:18, stone:12, food:10 };
+      if(!hasResources(cost)) return notify('Недостаточно запасов для освоения');
+      payCost(cost);
+      STATE.territoryRadius += 1.25;
+      notify('Владения империи расширены');
+      updateTerritoryRing();
+      updateUI();
+    }
+
+    function seasonalFoodConsumption(){
+      const seasonMult = [1.0, 1.0, 1.1, 1.32][STATE.season];
+      const weatherPenalty = STATE.weather === 'dust' ? 1.08 : 1;
+      const granaryBonus = 1 - (STATE.buildings.filter(b=>b.type==='granary').length * .05);
+      return Math.max(6, Math.round(STATE.population * 1.55 * seasonMult * weatherPenalty * Math.max(.75,granaryBonus)));
+    }
+
+    function totalDefense(){
+      return STATE.buildings.reduce((sum,b)=> sum + (buildingYield(b).defense || 0), 0) + Math.round(STATE.army * .75);
+    }
+
+    function randomEventCheck(){
+      const roll = Math.random();
+      if(roll < .16) return eventCaravan();
+      if(roll < .28) return eventHarvest();
+      if(roll < .38) return eventIntrigue();
+      if(roll < .46) return eventFire();
+      return false;
+    }
+
+    function eventCaravan(){
+      openModal('Торговый караван', 'У ворот появился богатый караван. Купцы предлагают редкие ткани, бронзу и благовония.', [
+        { text:'Купить товары <span class="cost">-45💰 +16👑 +8🕊️</span>', onClick:()=>{ if(STATE.gold<45){ notify('Недостаточно золота'); return; } STATE.gold-=45; STATE.prestige+=16; STATE.stability+=8; closeModal(); updateUI(); } },
+        { text:'Взять пошлину <span class="cost">+30💰 -4🕊️</span>', onClick:()=>{ STATE.gold+=30; STATE.stability-=4; closeModal(); updateUI(); } },
+        { text:'Отпустить с миром', onClick:()=>{ closeModal(); updateUI(); } }
+      ]);
+      return true;
+    }
+
+    function eventHarvest(){
+      openModal('Урожайный год', 'Поля и сады принесли щедрый урожай. Народ славит правителя за мудрое управление.', [
+        { text:'Пополнить амбары <span class="cost">+26🌾 +4🕊️</span>', onClick:()=>{ STATE.food+=26; STATE.stability+=4; closeModal(); updateUI(); } },
+        { text:'Раздать часть народу <span class="cost">+10🌾 +9🕊️ +6👑</span>', onClick:()=>{ STATE.food+=10; STATE.stability+=9; STATE.prestige+=6; closeModal(); updateUI(); } }
+      ]);
+      return true;
+    }
+
+    function eventIntrigue(){
+      openModal('Интриги знати', 'Часть знати требует привилегий и земель. Их поддержка полезна, но народ может увидеть слабость.', [
+        { text:'Уступить знати <span class="cost">-18💰 +10👑 -6🕊️</span>', onClick:()=>{ STATE.gold-=18; STATE.prestige+=10; STATE.stability-=6; closeModal(); updateUI(); } },
+        { text:'Подавить заговор <span class="cost">-6⚔️ +5🕊️</span>', onClick:()=>{ STATE.army=Math.max(0,STATE.army-6); STATE.stability+=5; STATE.threat+=3; closeModal(); updateUI(); } },
+        { text:'Промолчать', onClick:()=>{ closeModal(); updateUI(); } }
+      ]);
+      return true;
+    }
+
+    function eventFire(){
+      const candidates = STATE.buildings.filter(b => !['capital','wall'].includes(b.type));
+      if(!candidates.length) return false;
+      const victim = rand(candidates);
+      openModal('Пожар в городе', `Огонь вспыхнул в районе: <b>${BUILDING_TYPES[victim.type].name}</b>.`, [
+        { text:'Срочно тушить <span class="cost">-14💰 -8🪵</span>', onClick:()=>{ if(STATE.gold<14 || STATE.wood<8){ notify('Недостаточно ресурсов'); return; } STATE.gold-=14; STATE.wood-=8; STATE.stability+=2; closeModal(); updateUI(); } },
+        { text:'Позволить сгореть <span class="cost">-1 постройка -7🕊️</span>', onClick:()=>{ removeEntity(victim); STATE.stability-=7; closeModal(); updateUI(); } }
+      ]);
+      return true;
+    }
+
+    function maybeRaid(){
+      if(STATE.threat < 30) return false;
+      const chance = clamp((STATE.threat - 24) / 55, .18, .82);
+      if(Math.random() > chance) return false;
+
+      const raidPower = Math.round(STATE.threat + 16 + Math.random()*22 + STATE.turn*1.5);
+      const defense = totalDefense();
+      const success = defense >= raidPower;
+      const diff = raidPower - defense;
+      let text = `Разведчики заметили вражеский набег.<br><br><b>Сила врага:</b> ${raidPower}<br><b>Твоя защита:</b> ${defense}<br><br>`;
+      if(success){
+        STATE.prestige += 12;
+        STATE.stability += 5;
+        STATE.threat = Math.max(8, STATE.threat - 18);
+        STATE.raidsDefeated++;
+        text += 'Гарнизоны и башни удержали рубеж. Империя празднует победу.';
+        openModal('Набег отражён', text, [{ text:'Продолжить', onClick:()=>{ closeModal(); updateUI(); } }]);
+      } else {
+        const goldLoss = clamp(Math.round(diff * .8), 10, 60);
+        const foodLoss = clamp(Math.round(diff * .9), 12, 70);
+        const popLoss = clamp(Math.round(diff * .12), 1, 4);
+        const armyLoss = clamp(Math.round(diff * .22), 4, 16);
+        STATE.gold = Math.max(0, STATE.gold - goldLoss);
+        STATE.food = Math.max(0, STATE.food - foodLoss);
+        STATE.population = Math.max(3, STATE.population - popLoss);
+        STATE.army = Math.max(0, STATE.army - armyLoss);
+        STATE.stability -= 12;
+        STATE.threat = Math.max(18, STATE.threat - 10);
+        text += `Вражеский удар пробил оборону. Потери: -${goldLoss}💰, -${foodLoss}🌾, -${popLoss}👥, -${armyLoss}⚔️.`;
+        openModal('Разорительный набег', text, [{ text:'Мы восстановимся', onClick:()=>{ closeModal(); updateUI(); } }]);
+      }
+      return true;
+    }
+
+    function updateWeather(){
+      const pool = ['clear','clear','clear','mist','rain','dust'];
+      if(STATE.season === 0) pool.push('rain');
+      if(STATE.season === 2) pool.push('mist');
+      if(STATE.season === 3) pool.push('mist');
+      if(STATE.season === 1) pool.push('dust');
+      STATE.weather = rand(pool);
+      const w = WEATHER[STATE.weather];
+      skyMat.uniforms.topColor.value.setHex(w.skyTop);
+      skyMat.uniforms.bottomColor.value.setHex(w.skyBottom);
+    }
+
+    function nextTurn(){
+      if(STATE.eventLocked) return;
+      STATE.turn++;
+      STATE.season = (STATE.turn - 1) % 4;
+      updateWeather();
+
+      const income = { gold:0, food:0, wood:0, stone:0, army:0, prestige:0, stability:0, defense:0 };
+      STATE.buildings.forEach(b => {
+        const y = buildingYield(b);
+        Object.entries(y).forEach(([k,v]) => income[k] = (income[k] || 0) + v);
+        if(['farm','temple','capital','market'].includes(b.type) && Math.random() < .15) spawnSmoke(b.tile.pos);
+      });
+
+      gain(income);
+      const foodUse = seasonalFoodConsumption();
+      STATE.food -= foodUse;
+      if(STATE.food < 0){
+        const deficit = Math.abs(STATE.food);
+        STATE.food = 0;
+        STATE.population = Math.max(3, STATE.population - Math.ceil(deficit/18));
+        STATE.stability -= 10;
+        notify('Голод ослабил население');
+      } else {
+        if(STATE.food > STATE.population * 5 && STATE.stability > 58 && Math.random() < .65){
+          STATE.population += 1 + (STATE.season === 0 ? 1 : 0);
+        }
+      }
+
+      if(STATE.stability > 68) STATE.prestige += 2;
+      if(STATE.stability < 40) STATE.prestige = Math.max(0, STATE.prestige - 2);
+      if(STATE.weather === 'dust') STATE.stability -= 2;
+      if(STATE.season === 3) STATE.stability -= 1;
+      if(STATE.army < 10 && STATE.threat > 28) STATE.stability -= 5;
+
+      STATE.threat += 4 + Math.floor(STATE.turn/5);
+      if(STATE.buildings.some(b=>b.type==='wall')) STATE.threat -= 1;
+      if(STATE.buildings.some(b=>b.type==='capital' && b.level>=3)) STATE.stability += 1;
+      if(STATE.weather === 'rain') STATE.food += 4;
+      STATE.stability = clamp(STATE.stability, 0, 100);
+      STATE.threat = clamp(STATE.threat, 0, 100);
+
+      updateTerritoryRing();
+      checkVictoryDefeat();
+      updateUI();
+      if(STATE.eventLocked) return;
+      if(maybeRaid()) return;
+      randomEventCheck();
+      checkVictoryDefeat();
+      updateUI();
+    }
+
+    function checkVictoryDefeat(){
+      if(STATE.prestige >= 220 && STATE.raidsDefeated >= 3){
+        openModal('Золотой век', `Твоя империя вошла в эпоху величия.<br><br><b>Престиж:</b> ${STATE.prestige}<br><b>Отражено набегов:</b> ${STATE.raidsDefeated}<br><br>Ты победил как мудрый правитель.`, [{ text:'Продолжить правление', onClick:()=>closeModal() }]);
+        return true;
+      }
+      if(STATE.stability <= 0){
+        openModal('Падение державы', 'Империя утратила внутреннее единство. Бунты и распад разрушили власть.', [{ text:'Начать заново (перезагрузка)', onClick:()=>location.reload() }]);
+        return true;
+      }
+      if(STATE.population <= 3){
+        openModal('Город опустел', 'Народ покинул или утратил силы. Государство не может продолжать существование.', [{ text:'Начать заново', onClick:()=>location.reload() }]);
+        return true;
+      }
+      if(STATE.army <= 0 && STATE.threat >= 60){
+        openModal('Беззащитная граница', 'Империя осталась без армии перед лицом внешней угрозы.', [{ text:'Начать заново', onClick:()=>location.reload() }]);
+        return true;
+      }
+      return false;
+    }
+
+    function createCapital(){
+      const centerTile = STATE.tiles.filter(t => t.type !== 'water').sort((a,b)=>distance2D(a.pos, new THREE.Vector3()) - distance2D(b.pos, new THREE.Vector3()))[0];
+      const cap = createEntity('capital', centerTile, 1);
+      STATE.selectedEntity = cap;
+      const around = getNeighbors(centerTile);
+      const free = around.filter(t=>!t.building && t.type!=='water');
+      if(free[0]) createEntity('farm', free[0], 1);
+      if(free[1]) createEntity('market', free[1], 1);
+      if(free[2]) createEntity('barracks', free[2], 1);
+      STATE.territoryRadius = 12.5;
+      updateTerritoryRing();
+    }
+
+    function drawMinimap(){
+      const c = $('#minimap');
+      const ctx = c.getContext('2d');
+      const dpr = Math.min(devicePixelRatio,2);
+      const size = c.clientWidth * dpr;
+      if(c.width !== size){ c.width = c.height = size; }
+      ctx.clearRect(0,0,c.width,c.height);
+      ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,c.width,c.height);
+      const cx = c.width/2, cy = c.height/2, scale = c.width / 52;
+      for(const tile of STATE.tiles){
+        const x = cx + tile.pos.x*scale;
+        const y = cy + tile.pos.z*scale;
+        ctx.fillStyle = '#' + terrainColor(tile.type).toString(16).padStart(6,'0');
+        ctx.beginPath();
+        ctx.arc(x,y, tile.type==='water' ? 2.5 : 3.2, 0, Math.PI*2);
+        ctx.fill();
+        if(tile.building){
+          ctx.fillStyle = tile.building.type === 'capital' ? '#ffd66b' : '#ffffff';
+          ctx.fillRect(x-2,y-2,4,4);
+        }
+      }
+      ctx.strokeStyle = 'rgba(255,214,107,.7)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, STATE.territoryRadius*scale, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.fillStyle = '#ffae4b';
+      ctx.beginPath(); ctx.arc(cx + camera.position.x*scale, cy + camera.position.z*scale, 3.4, 0, Math.PI*2); ctx.fill();
+    }
+
+    function updatePreviewFromPointer(event){
+      if(!STATE.selectedBuildingType || STATE.eventLocked) return;
+      pointer.x = (event.clientX / innerWidth) * 2 - 1;
+      pointer.y = -(event.clientY / innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(intersectables, false);
+      if(!hits.length){ previewMesh.visible = false; return; }
+      const tile = nearestTileFromObject(hits[0].object);
+      if(!tile){ previewMesh.visible = false; return; }
+      previewMesh.visible = true;
+      previewMesh.position.copy(tile.pos); previewMesh.position.y = .12;
+      const check = canBuildOnTile(STATE.selectedBuildingType, tile);
+      setPreviewValid(check.ok && hasResources(BUILDING_TYPES[STATE.selectedBuildingType].cost));
+      $('#placement-tip').textContent = `${BUILDING_TYPES[STATE.selectedBuildingType].name} • ${TERRAIN_INFO[tile.type].name} • ${check.ok ? 'можно строить' : check.reason}`;
+    }
+
+    function onPointerDown(event){
+      if(STATE.eventLocked) return;
+      if(event.target.closest('.panel, button')) return;
+      pointer.x = (event.clientX / innerWidth) * 2 - 1;
+      pointer.y = -(event.clientY / innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(intersectables, false);
+      if(!hits.length){ clearSelection(); return; }
+      const tile = nearestTileFromObject(hits[0].object);
+      if(!tile) return;
+      if(STATE.selectedBuildingType){ tryPlace(STATE.selectedBuildingType, tile); return; }
+      if(tile.building){ selectEntity(tile.building); }
+      else { clearSelection(); }
+    }
+
+    let lastTap = 0;
+    function onDoubleTapReset(){
+      const now = performance.now();
+      if(now - lastTap < 280) clearSelection();
+      lastTap = now;
+    }
+
+    function updateDayNight(dt){
+      STATE.dayPhase += dt * 0.024;
+      const t = STATE.dayPhase;
+      const ang = t * Math.PI * 2;
+      sun.position.set(Math.cos(ang)*40, Math.max(8, Math.sin(ang)*34), Math.sin(ang)*20 - 8);
+      sun.intensity = clamp(Math.sin(ang)*0.95 + .7, .18, 1.3) * WEATHER[STATE.weather].sunMul;
+      hemi.intensity = .34 + sun.intensity * .42;
+      const isDay = sun.position.y > 13;
+      $('#time-box').innerHTML = `${isDay ? '☀️ День' : '🌙 Ночь'} • <span id="season-label">${SEASONS[STATE.season]}</span>`;
+      buildingGroup.traverse(obj => {
+        if(obj.isMesh && obj.material?.emissiveIntensity !== undefined && obj.parent?.userData?.torch){
+          obj.material.emissiveIntensity = isDay ? 0 : 1.8;
+        }
+      });
+    }
+
+    function animateEffects(dt){
+      for(let i=STATE.particles.length-1;i>=0;i--){
+        const p = STATE.particles[i];
+        p.userData.life -= dt;
+        p.position.addScaledVector(p.userData.vel, dt*60);
+        p.material.opacity = Math.max(0, p.userData.life * .8);
+        if(p.userData.life <= 0){ fxGroup.remove(p); STATE.particles.splice(i,1); }
+      }
+      for(let i=STATE.effects.length-1;i>=0;i--){
+        const e = STATE.effects[i];
+        e.userData.life -= dt;
+        e.position.addScaledVector(e.userData.vel, dt*60);
+        e.scale.multiplyScalar(1 + dt*.22);
+        e.material.opacity = Math.max(0, e.userData.life * .25);
+        if(e.userData.life <= 0){ fxGroup.remove(e); STATE.effects.splice(i,1); }
+      }
+      if(Math.random() < .028){
+        const smokeBuildings = STATE.buildings.filter(b => ['capital','temple','market','barracks'].includes(b.type));
+        if(smokeBuildings.length) spawnSmoke(rand(smokeBuildings).tile.pos);
+      }
+    }
+
+    function initUI(){
+      $$('.build-btn').forEach(btn => btn.addEventListener('click', () => chooseBuilding(btn.dataset.type)));
+      $('#upgrade-btn').onclick = upgradeSelected;
+      $('#destroy-btn').onclick = destroySelected;
+      $('#end-turn-btn').onclick = nextTurn;
+      $('#open-rules').onclick = showRules;
+      $('#edict-tax').onclick = edictTax;
+      $('#edict-feast').onclick = edictFeast;
+      $('#edict-levy').onclick = edictLevy;
+      $('#edict-colonize').onclick = edictColonize;
+      $('#camera-home').onclick = () => { controls.target.set(0,0,0); camera.position.set(18,28,24); notify('Камера возвращена к столице'); };
+      $('#camera-top').onclick = () => { controls.target.set(0,0,0); camera.position.set(0,44,.01); notify('Стратегический обзор активирован'); };
+      $('#toggle-grid').onclick = () => { STATE.visualGrid = !STATE.visualGrid; if(gridOverlay) gridOverlay.visible = STATE.visualGrid; notify(STATE.visualGrid ? 'Сетка включена' : 'Сетка скрыта'); };
+      modalOverlay.addEventListener('click', (e)=>{ if(e.target === modalOverlay) closeModal(); });
+      addEventListener('pointermove', updatePreviewFromPointer, { passive:true });
+      addEventListener('pointerdown', onPointerDown, { passive:true });
+      addEventListener('pointerdown', onDoubleTapReset, { passive:true });
+      addEventListener('resize', onResize);
+    }
+
+    function onResize(){
+      camera.aspect = innerWidth/innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+      composer.setSize(innerWidth, innerHeight);
+      drawMinimap();
+    }
+
+    function bootstrap(){
+      setLoading(6,'Создание картографической сетки…');
+      generateWorld();
+      createPreview();
+      setLoading(54,'Настройка имперских кварталов…');
+      createCapital();
+      setLoading(72,'Расстановка караванов, башен и знамён…');
+      initUI();
+      updateWeather();
+      updateUI();
+      setLoading(100,'Империя готова к правлению');
+      setTimeout(()=>{ $('#loading-screen').style.display='none'; showRules(); }, 900);
+    }
+
+    let last = performance.now();
+    function animate(now=performance.now()){
+      requestAnimationFrame(animate);
+      const dt = Math.min(.033, (now - last)/1000);
+      last = now;
+      controls.update();
+      updateDayNight(dt);
+      animateEffects(dt);
+      composer.render();
+      drawMinimap();
+    }
+
+    bootstrap();
+    animate();
+  </script>
+</body>
+</html>
