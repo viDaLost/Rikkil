@@ -1,0 +1,607 @@
+{
+  "dns": {
+    "queryStrategy": "UseIP",
+    "servers": [
+      "1.1.1.1",
+      "8.8.8.8"
+    ]
+  },
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": 10808,
+      "protocol": "socks",
+      "settings": {
+        "allowTransparent": false,
+        "auth": "noauth",
+        "udp": true
+      },
+      "sniffing": {
+        "destOverride": ["http", "tls", "quic"],
+        "enabled": true,
+        "routeOnly": false
+      },
+      "tag": "socks"
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 10809,
+      "protocol": "http",
+      "settings": {
+        "allowTransparent": false,
+        "auth": "noauth",
+        "udp": true
+      },
+      "sniffing": {
+        "destOverride": ["http", "tls", "quic"],
+        "enabled": true,
+        "routeOnly": false
+      },
+      "tag": "http"
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 10803,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1",
+        "network": "tcp,udp",
+        "port": 0
+      },
+      "tag": "entry-lte-fallback"
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 10804,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1",
+        "network": "tcp,udp",
+        "port": 0
+      },
+      "tag": "entry-smart-fallback"
+    }
+  ],
+  "log": {
+    "access": "/private/var/mobile/Containers/Shared/AppGroup/F039B01C-3067-4EDC-960F-9D48B1867272/Library/Application Support/Xray/logs/access.log",
+    "dnsLog": false,
+    "loglevel": "Warning"
+  },
+  "meta": {
+    "serverDescription": "Автовыбор: SMART/LTE-Авто (Ускоренный)"
+  },
+  "observatory": {
+    "enableConcurrency": true,
+    "probeInterval": "30s",
+    "probeUrl": "http://www.gstatic.com/generate_204",
+    "subjectSelector": [
+      "smart-0------SMART---------",
+      "smart-1------SMART-------",
+      "smart-2------SMART-----------",
+      "smart-3------SMART--------2",
+      "smart-4------SMART-------",
+      "smart-5------SMART------------2",
+      "smart-6------SMART--------2",
+      "lte-0-------18-LTE--------------",
+      "lte-1-------24-LTE--------------",
+      "lte-2-------11-LTE--------------",
+      "lte-3-------47-LTE--------------",
+      "lte-4-------23-LTE--------------",
+      "lte-5-------21-LTE--------------",
+      "lte-6-------17-LTE--------------",
+      "lte-7-------46-LTE--------------",
+      "lte-8-------30-LTE--------------",
+      "lte-9-------31-LTE--------------",
+      "lte-10-------39-LTE--------------",
+      "lte-11-------40-LTE--------------",
+      "lte-12-------43-LTE--------------",
+      "lte-13-------44-LTE--------------",
+      "lte-14-------27-LTE--------------",
+      "lte-15-------28-LTE--------------",
+      "lte-16-------41-LTE--------------",
+      "lte-17-------20-LTE----------------Yo",
+      "lte-18-------32-LTE----------------Yo"
+    ]
+  },
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "x1bu2h2-qh15tz.de.vkproxy.com","port": 50043,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "DG904eM7xGecwV_nhjX73c-7g_fGEv8BgjbeAmTE8Bs","serverName": "sun9-45.userapi.com","shortId": "505c94b8c65afb0a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "smart-0------SMART---------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "x4mq4kr-iis1aa.185.vkproxy.com","port": 40443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "DG904eM7xGecwV_nhjX73c-7g_fGEv8BgjbeAmTE8Bs","serverName": "deepl.com","shortId": "505c94b8c65afb0a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "smart-1------SMART-------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "x1z863n-g1a3zv.nl.velvetvpn.xyz","port": 40443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "wKPAR2t-xoUMbBqRHV7SLvGuR9dwrcH6bTSknyBO0T8","serverName": "deepl.com","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "smart-2------SMART-----------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "a2d249c1-b7kxjp.95.v-tun.com","port": 7443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "DG904eM7xGecwV_nhjX73c-7g_fGEv8BgjbeAmTE8Bs","serverName": "yandex.ru","shortId": "505c94b8c65afb0a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "smart-3------SMART--------2"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "a2d249c1-b7kxjp.95.v-tun.com","port": 40443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "DG904eM7xGecwV_nhjX73c-7g_fGEv8BgjbeAmTE8Bs","serverName": "api-maps.yandex.ru","shortId": "505c94b8c65afb0a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "smart-4------SMART-------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "x1z863n-g1a3zv.nl.velvetvpn.xyz","port": 8443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "wKPAR2t-xoUMbBqRHV7SLvGuR9dwrcH6bTSknyBO0T8","serverName": "deepl.com","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "smart-5------SMART------------2"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "x4mq4kr-iis1aa.185.vkproxy.com","port": 8443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "DG904eM7xGecwV_nhjX73c-7g_fGEv8BgjbeAmTE8Bs","serverName": "deepl.com","shortId": "505c94b8c65afb0a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "smart-6------SMART--------2"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "bu89y1b8-1hd1m.217.vkproxy.com","port": 9443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-0-------18-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "178.248.238.133","port": 10065,"users": [{"encryption": "none","flow": "","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {"allowInsecure": false,"alpn": ["h3","h2","http/1.1"],"fingerprint": "qq","serverName": "stream-1.kinograd.online","show": false},
+        "wsSettings": {"headers": {"Host": "stream-1.kinograd.online"},"path": "/live/stream?module=video-cdn&app_client_id=cc8c59b8-7c86-417b-a522-b0cc29fcc2f8"}
+      },
+      "tag": "lte-1-------24-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "81.161.98.162","port": 10065,"users": [{"encryption": "none","flow": "","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {"allowInsecure": false,"alpn": ["h3","h2","http/1.1"],"fingerprint": "qq","serverName": "kinograd.online","show": false},
+        "wsSettings": {"headers": {"Host": "kinograd.online"},"path": "/live/stream?module=video-cdn&app_client_id=cc8c59b8-7c86-417b-a522-b0cc29fcc2f8"}
+      },
+      "tag": "lte-2-------11-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "z01b9fq55-1mmi.ru-a1.y-tun.com","port": 8443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-3-------47-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "d2dv04xm-m5m1zz.ru.y-tun.com","port": 8443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-4-------23-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "epdave3r-bbupbd.ru.y-tun.com","port": 8443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-5-------21-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "e4dmt9rz-c6ds57.ru.y-tun.com","port": 8443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-6-------17-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "b0129fq55-1mr4.ru-a1.y-tun.com","port": 40443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-7-------46-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "bb610f7e-98fqm.5.v-tun.com","port": 50445,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "celular.vk.com","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-8-------30-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "bb610f7e-hb2mq.5.v-tun.com","port": 40443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-9-------31-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "ff53e245-7f91.46.vkproxy.com","port": 50445,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "ios","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "river-5-528.rtbcdn.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-10-------39-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "ff53e245-7f91.46.vkproxy.com","port": 7443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "amedia-vod.cdnvideo.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-11-------40-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "b298fcde-9bd6.msk.v-tun.com","port": 50445,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "ios","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "river-5-528.rtbcdn.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-12-------43-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "b298fcde-9bd6.msk.v-tun.com","port": 7443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "ios","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "amedia-vod.cdnvideo.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-13-------44-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "hda982va-ac32ja.109.v-tun.com","port": 9443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "celular.vk.com","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-14-------27-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "hda982va-ac32ja.109.v-tun.com","port": 40443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-15-------28-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "1a84db4b-5239.212.vkproxy.com","port": 40443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-16-------41-LTE--------------"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "ca743787-da0b.kz.v-tun.com","port": 9443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "api-maps.yandex.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-17-------20-LTE----------------Yo"
+    },
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [{"address": "ca743787-da0b.kz.v-tun.com","port": 7443,"users": [{"encryption": "none","flow": "xtls-rprx-vision","id": "1039daf0-12d1-477b-95bf-68c440f12863"}]}]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "realitySettings": {"fingerprint": "qq","publicKey": "ZSzB9TQPGNcCiC0WLmciF5Jc8doJDvdRgbqTi8SCoEM","serverName": "amedia-vod.cdnvideo.ru","shortId": "a1b2c3d4e5f6789a","show": false,"spiderX": "/"},
+        "security": "reality",
+        "tcpSettings": {}
+      },
+      "tag": "lte-18-------32-LTE----------------Yo"
+    },
+    {
+      "protocol": "blackhole",
+      "tag": "block"
+    },
+    {
+      "protocol": "loopback",
+      "settings": {"inboundTag": "entry-lte-fallback"},
+      "tag": "loop_to_lte"
+    },
+    {
+      "protocol": "loopback",
+      "settings": {"inboundTag": "entry-smart-fallback"},
+      "tag": "loop_to_smart"
+    }
+  ],
+  "remarks": "🇪🇺 LTE-Авто (Fast & Low Ping)",
+  "routing": {
+    "balancers": [
+      {
+        "fallbackTag": "loop_to_lte",
+        "selector": [
+          "smart-0------SMART---------",
+          "smart-1------SMART-------",
+          "smart-2------SMART-----------",
+          "smart-3------SMART--------2",
+          "smart-4------SMART-------",
+          "smart-5------SMART------------2",
+          "smart-6------SMART--------2"
+        ],
+        "strategy": {
+          "settings": {
+            "costs": [
+              {"match": "smart-0------SMART---------","regexp": false,"value": 0},
+              {"match": "smart-1------SMART-------","regexp": false,"value": 1000000000},
+              {"match": "smart-2------SMART-----------","regexp": false,"value": 2000000000},
+              {"match": "smart-3------SMART--------2","regexp": false,"value": 3000000000},
+              {"match": "smart-4------SMART-------","regexp": false,"value": 4000000000},
+              {"match": "smart-5------SMART------------2","regexp": false,"value": 5000000000},
+              {"match": "smart-6------SMART--------2","regexp": false,"value": 6000000000}
+            ],
+            "expected": 1,
+            "maxRTT": "800ms"
+          },
+          "type": "leastLoad"
+        },
+        "tag": "lb_smart"
+      },
+      {
+        "fallbackTag": "loop_to_smart",
+        "selector": [
+          "lte-0-------18-LTE--------------",
+          "lte-1-------24-LTE--------------",
+          "lte-2-------11-LTE--------------",
+          "lte-3-------47-LTE--------------",
+          "lte-4-------23-LTE--------------",
+          "lte-5-------21-LTE--------------",
+          "lte-6-------17-LTE--------------",
+          "lte-7-------46-LTE--------------",
+          "lte-8-------30-LTE--------------",
+          "lte-9-------31-LTE--------------",
+          "lte-10-------39-LTE--------------",
+          "lte-11-------40-LTE--------------",
+          "lte-12-------43-LTE--------------",
+          "lte-13-------44-LTE--------------",
+          "lte-14-------27-LTE--------------",
+          "lte-15-------28-LTE--------------",
+          "lte-16-------41-LTE--------------",
+          "lte-17-------20-LTE----------------Yo",
+          "lte-18-------32-LTE----------------Yo"
+        ],
+        "strategy": {
+          "settings": {
+            "baselines": ["500ms","1s"],
+            "costs": [
+              {"match": "lte-0-------18-LTE--------------","regexp": false,"value": 1000000000},
+              {"match": "lte-1-------24-LTE--------------","regexp": false,"value": 3000000000},
+              {"match": "lte-2-------11-LTE--------------","regexp": false,"value": 3000000000},
+              {"match": "lte-3-------47-LTE--------------","regexp": false,"value": 2000000000},
+              {"match": "lte-4-------23-LTE--------------","regexp": false,"value": 2000000000},
+              {"match": "lte-5-------21-LTE--------------","regexp": false,"value": 2000000000},
+              {"match": "lte-6-------17-LTE--------------","regexp": false,"value": 3000000000},
+              {"match": "lte-7-------46-LTE--------------","regexp": false,"value": 2000000000},
+              {"match": "lte-8-------30-LTE--------------","regexp": false,"value": 1000000000},
+              {"match": "lte-9-------31-LTE--------------","regexp": false,"value": 1000000000},
+              {"match": "lte-10-------39-LTE--------------","regexp": false,"value": 2000000000},
+              {"match": "lte-11-------40-LTE--------------","regexp": false,"value": 2000000000},
+              {"match": "lte-12-------43-LTE--------------","regexp": false,"value": 2000000000},
+              {"match": "lte-13-------44-LTE--------------","regexp": false,"value": 2000000000},
+              {"match": "lte-14-------27-LTE--------------","regexp": false,"value": 1000000000},
+              {"match": "lte-15-------28-LTE--------------","regexp": false,"value": 1000000000},
+              {"match": "lte-16-------41-LTE--------------","regexp": false,"value": 1000000000},
+              {"match": "lte-17-------20-LTE----------------Yo","regexp": false,"value": 3000000000},
+              {"match": "lte-18-------32-LTE----------------Yo","regexp": false,"value": 3000000000}
+            ],
+            "expected": 1,
+            "maxRTT": "1s"
+          },
+          "type": "leastLoad"
+        },
+        "tag": "lb_lte"
+      },
+      {
+        "selector": [
+          "smart-0------SMART---------",
+          "smart-1------SMART-------",
+          "smart-2------SMART-----------",
+          "smart-3------SMART--------2",
+          "smart-4------SMART-------",
+          "smart-5------SMART------------2",
+          "smart-6------SMART--------2"
+        ],
+        "strategy": {
+          "settings": {
+            "costs": [
+              {"match": "smart-0------SMART---------","regexp": false,"value": 0},
+              {"match": "smart-1------SMART-------","regexp": false,"value": 1000000000},
+              {"match": "smart-2------SMART-----------","regexp": false,"value": 2000000000},
+              {"match": "smart-3------SMART--------2","regexp": false,"value": 3000000000},
+              {"match": "smart-4------SMART-------","regexp": false,"value": 4000000000},
+              {"match": "smart-5------SMART------------2","regexp": false,"value": 5000000000},
+              {"match": "smart-6------SMART--------2","regexp": false,"value": 6000000000}
+            ],
+            "expected": 1,
+            "maxRTT": "1s"
+          },
+          "type": "leastLoad"
+        },
+        "tag": "lb_smart_fallback"
+      }
+    ],
+    "domainMatcher": "hybrid",
+    "domainStrategy": "IPIfNonMatch",
+    "rules": [
+      {
+        "type": "field",
+        "outboundTag": "lb_smart",
+        "domain": ["geosite:telegram"],
+        "ip": ["geoip:telegram"]
+      },
+      {
+        "outboundTag": "block",
+        "protocol": ["bittorrent"],
+        "type": "field"
+      },
+      {
+        "balancerTag": "lb_smart",
+        "inboundTag": ["socks","http"],
+        "network": "tcp,udp",
+        "type": "field"
+      },
+      {
+        "balancerTag": "lb_lte",
+        "inboundTag": ["entry-lte-fallback"],
+        "type": "field"
+      },
+      {
+        "balancerTag": "lb_smart_fallback",
+        "inboundTag": ["entry-smart-fallback"],
+        "type": "field"
+      }
+    ]
+  }
+}
