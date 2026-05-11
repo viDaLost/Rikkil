@@ -1,294 +1,176 @@
-/* Подключение шрифта */
-@import url('https://fonts.googleapis.com/css2?family=Neucha&display=swap');
+/* ========================
+   ДИЗАЙН-СИСТЕМА / ПЕРЕМЕННЫЕ
+   ======================== */
+:root {
+  /* Premium Soft Spiritual Palette */
+  --bg-color: #f8f9ff;               
+  --accent-color: #eef4ff;           
+  --accent-hover: #d1dbec;
+  --accent-active: #312e81;          
+  --text-color: #1e1b4b;
+  --card-bg: #ffffff;
 
-/* Основные стили */
+  --correct-color: #10b981;
+  --correct-hover: #059669;
+  --wrong-color: #f43f5e;
+  --wrong-hover: #e11d48;
+
+  --skip-color: #fbbf24;
+  --skip-hover: #f59e0b;
+  --skip-text: #78350f;
+
+  /* Typography & Shapes */
+  --button-radius: 12px;
+  --modal-radius: 24px;
+  --input-radius: 12px;
+  
+  --shadow-app: 0 4px 20px rgba(49, 46, 129, 0.06);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+
+  --field-bg: #ffffff;
+  --field-border: #e2e8f0;
+  --field-focus: rgba(49, 46, 129, 0.15);
+}
+
+/* ========================
+   ГЛОБАЛЬНЫЕ СТИЛИ
+   ======================== */
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  -webkit-tap-highlight-color: transparent; 
+}
+
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Neucha', cursive;
-    color: #333;
-    overflow: hidden;
-    background-color: #f0f0f0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1.5rem 3rem;
+  -webkit-font-smoothing: antialiased;
 }
 
-.app {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow: auto;
+header {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
 }
 
-/* Цвета экранов */
-.main-menu-page .app {
-    background: url('../img/main-bg.jpg') no-repeat center center fixed;
-    background-size: cover;
-    background-color: #fff3e0;
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent-active);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
-.choose-game-page .app,
-.memory-game-page .app,
-.homework-page .app,
-.bible-puzzles-page .app {
-    background-color: #f0f0f0;
+/* ========================
+   МЕНЮ И ДАШБОРД
+   ======================== */
+.menu-container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 }
 
-/* Фоновое изображение */
-.backgrounds {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
+.menu-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 1rem;
 }
 
-.backgrounds img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
-/* Экраны */
-.screen {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
-    z-index: 2;
+/* ========================
+   КНОПКИ
+   ======================== */
+.game-button, .menu-button, .start-button {
+  background: var(--card-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--button-radius);
+  padding: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow-app);
 }
 
-.screen.active {
-    display: flex;
+.game-button:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-active);
+  background: var(--accent-color);
 }
 
-/* Персонаж и контент поверх фона */
-.character-container,
-.menu-buttons,
-.screen-buttons,
-.game-content {
-    position: relative;
-    z-index: 3;
+.game-button:active {
+  transform: translateY(0) scale(0.98);
 }
 
-.character {
-    width: 100%;
-    height: auto;
-    max-width: 300px;
-    margin-bottom: 20px;
+.start-button {
+  background: var(--accent-active);
+  color: #ffffff;
+  justify-content: center;
+  border: none;
 }
 
-.character-container {
-    width: 100%;
-    max-width: 300px;
-    margin-bottom: 20px;
+/* ========================
+   ИГРОВЫЕ ЭКРАНЫ (ОБЩЕЕ)
+   ======================== */
+#game-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-/* Кнопки */
-button {
-    font-family: inherit;
-    border: none;
-    border-radius: 25px;
-    padding: 15px 25px;
-    margin: 10px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    animation: pulse 2s infinite;
-    z-index: 3;
+.card {
+  background: var(--card-bg);
+  border-radius: var(--modal-radius);
+  padding: 3rem;
+  box-shadow: var(--shadow-app);
+  text-align: center;
 }
 
-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+.timer {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--accent-active);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 1.5rem;
 }
 
-button:active {
-    transform: scale(0.95);
+/* ========================
+   УТИЛИТЫ
+   ======================== */
+.hidden { display: none !important; }
+.fade-in { animation: fadeIn 0.4s ease-out; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.green-btn {
-    background: linear-gradient(145deg, #66bb6a, #388e3c);
-    border: 2px solid #388e3c;
-}
-
-.orange-btn {
-    background: linear-gradient(145deg, #ffa726, #f57c00);
-    border: 2px solid #f57c00;
-}
-
-.blue-btn {
-    background: linear-gradient(145deg, #42a5f5, #1565c0);
-    border: 2px solid #1565c0;
-}
-
-.yellow-btn {
-    background: linear-gradient(145deg, #ffeb3b, #fbc02d);
-    border: 2px solid #fbc02d;
-    color: #333;
-}
-
-.hidden {
-    display: none;
-}
-
-.pulse {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-/* Игра "Найди пару" */
-
-.memory-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 10px;
-    width: 100%;
-    max-width: 400px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    perspective: 1000px;
-}
-
-.memory-card {
-    width: 80px;
-    height: 80px;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.5s;
-    cursor: pointer;
-    z-index: 3;
-}
-
-.memory-card-front,
-.memory-card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2em;
-    user-select: none;
-}
-
-.memory-card-front {
-    background-color: #000000;
-    color: white;
-    border: 3px solid #000000;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
-
-.memory-card-back {
-    transform: rotateY(180deg);
-    background-color: #fff;
-    border: 3px solid #ff99cc;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-}
-
-.memory-card.flipped {
-    transform: rotateY(180deg);
-}
-
-.memory-card.matched .memory-card-front,
-.memory-card.matched .memory-card-back {
-    border-color: #00cc66 !important;
-    box-shadow: 0 0 15px rgba(102, 187, 106, 0.5);
-}
-
-.memory-card.mismatch .memory-card-front,
-.memory-card.mismatch .memory-card-back {
-    border-color: #d32f2f !important;
-    box-shadow: 0 0 15px rgba(215, 0, 0, 0.5);
-}
-
-/* Ввод текста */
-input[type="text"],
-input[type="date"],
-input[type="datetime-local"] {
-    width: 100%;
-    padding: 12px;
-    margin: 15px 0;
-    border-radius: 20px;
-    border: 2px solid #ccc;
-    font-size: 1.1em;
-    transition: all 0.3s ease;
-}
-
-input:focus {
-    outline: none;
-    border-color: #80deea;
-    box-shadow: 0 0 8px rgba(128, 222, 234, 0.5);
-}
-
-/* Приветствие в главном меню */
-.greeting-box {
-    background-color: rgba(255, 250, 250, 0.8);
-    border-radius: 25px;
-    padding: 20px;
-    max-width: 80%;
-    text-align: center;
-    font-size: 1.2em;
-    color: #333;
-    margin: 20px 0;
-    z-index: 3;
-}
-
-.greeting-box span {
-    font-weight: bold;
-    color: #388e3c;
-}
-
-/* Адаптивность */
-@media (max-width: 600px) {
-    .menu-buttons,
-    .screen-buttons,
-    .homework-buttons {
-        flex-direction: column;
-    }
-    
-    button {
-        font-size: 1em;
-        width: 90%;
-        max-width: 300px;
-    }
-    
-    .character-container {
-        max-width: 200px;
-    }
-    
-    .greeting-box {
-        font-size: 1em;
-        max-width: 90%;
-    }
-    
-    .memory-grid {
-        max-width: 90%;
-    }
-    
-    .puzzle-box {
-        width: 90%;
-    }
+@media (max-width: 768px) {
+  header { padding: 1.5rem 0; }
+  .menu-grid { grid-template-columns: 1fr; }
+  .card { padding: 2rem 1.5rem; }
 }
